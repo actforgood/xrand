@@ -97,7 +97,7 @@ func String(n int, alphabet ...string) string {
 	}
 
 	var (
-		alphabetIdxBits       = countBits(len(a) - 1)  // represents the max no. of bits to represent an index in alphabet.
+		alphabetIdxBits       = countBits(len(a))      // represents the max no. of bits to represent an index in alphabet.
 		alphabetIdxMask int64 = 1<<alphabetIdxBits - 1 // 1...1b bits, of length alphabetIdxBits
 		alphabetIdxMax        = 63 / alphabetIdxBits   // no. of random letters/their indexes we can extract from a single int63
 		b                     = make([]byte, n)
@@ -120,7 +120,7 @@ func String(n int, alphabet ...string) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
 
-// countBits returns the no. of bits provided integer fills in.
+// countBits returns the no. of bits provided integer fits in.
 func countBits(x int) int {
 	bitsNo := 0
 	for x--; x > 0; x >>= 1 {

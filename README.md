@@ -11,6 +11,14 @@ Package `xrand` contains some randomize utilities like a random string generator
 It uses math rand seeded with a crypro rand generated seed.
 See go doc reference for more details and examples.
 
+
+### Installation
+
+```shell
+$ go get -u github.com/actforgood/xrand
+```
+
+
 ### Misc 
 Feel free to use this pkg if you like it and fits your needs.   
 As it is a light/lite pkg, you can also just copy-paste the code, instead of importing it, keeping the license header.  

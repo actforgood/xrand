@@ -1,7 +1,7 @@
-// Copyright 2022 Bogdan Constantinescu.
+// Copyright The ActForGood Authors.
 // Use of this source code is governed by an MIT-style
 // license that can be found in the LICENSE file or at
-// https://github.com/actforgood/xrand/LICENSE.
+// https://github.com/actforgood/xrand/blob/main/LICENSE.
 
 package xrand
 

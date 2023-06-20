@@ -85,10 +85,10 @@ const (
 )
 
 // String generates a random string of length n with letters from the alphabet.
-// Alphabet is optional and defaults to AlphanumAlphabet if not provided.
+// Alphabet is optional and defaults to [AlphanumAlphabet] if not provided.
 func String(n int, alphabet ...string) string {
 	// Note: implementation details are explained here: https://stackoverflow.com/a/31832326
-	// See also similar impl: https://github.com/kubernetes/apimachinery/blob/v0.24.2/pkg/util/rand/rand.go#L98
+	// See also similar impl: https://github.com/kubernetes/apimachinery/blob/v0.27.3/pkg/util/rand/rand.go#L98
 	var a string
 	if len(alphabet) > 0 && len(alphabet[0]) > 0 {
 		a = alphabet[0]
@@ -99,7 +99,7 @@ func String(n int, alphabet ...string) string {
 	var (
 		alphabetIdxBits       = countBits(len(a))      // represents the max no. of bits to represent an index in alphabet.
 		alphabetIdxMask int64 = 1<<alphabetIdxBits - 1 // 1...1b bits, of length alphabetIdxBits
-		alphabetIdxMax        = 63 / alphabetIdxBits   // no. of random letters/their indexes we can extract from a single int63
+		alphabetIdxMax        = 63 / alphabetIdxBits   // no. of random letters/their indexes we can extract from an int63
 		b                     = make([]byte, n)
 	)
 

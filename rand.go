@@ -9,6 +9,7 @@ import (
 	cRand "crypto/rand"
 	"encoding/binary"
 	mRand "math/rand"
+	"sync"
 	"time"
 	"unsafe"
 )
@@ -16,10 +17,38 @@ import (
 // defaultJitterFactor is the factor to apply by default on the jitter.
 const defaultJitterFactor = 0.2
 
+// globalRand is a global instance of Rand.
+var globalRand *mRand.Rand
+
 // init initializes math rand with a secure random seed.
 // Is called automatically by go, only once, on this package first import elsewhere.
 func init() {
-	mRand.Seed(getRandSeed())
+	globalRand = mRand.New(&lockedSource{src: mRand.NewSource(getRandSeed())})
+}
+
+// lockedSource allows a random number generator to be used by multiple goroutines
+// concurrently. The code is very similar to math/rand.lockedSource, which is
+// unfortunately not exposed.
+type lockedSource struct {
+	sync.Mutex
+
+	src mRand.Source
+}
+
+// Int63...
+func (ls *lockedSource) Int63() (n int64) {
+	ls.Lock()
+	n = ls.src.Int63()
+	ls.Unlock()
+
+	return
+}
+
+// Seed...
+func (ls *lockedSource) Seed(seed int64) {
+	ls.Lock()
+	ls.src.Seed(seed)
+	ls.Unlock()
 }
 
 // getRandSeed returns a random seed number.
@@ -43,18 +72,18 @@ func getRandSeed() int64 {
 // Intn generates a random integer in range [0,n).
 // It panics if max <= 0.
 func Intn(n int) int {
-	return mRand.Intn(n)
+	return globalRand.Intn(n)
 }
 
 // IntnBetween generates a random integer in range [min,max).
 // It panics if max <= 0.
 func IntnBetween(min, max int) int {
-	return mRand.Intn(max-min) + min
+	return globalRand.Intn(max-min) + min
 }
 
 // Float64 generates a random float64 in range [0.0, 1.0).
 func Float64() float64 {
-	return mRand.Float64()
+	return globalRand.Float64()
 }
 
 // Jitter returns a time.Duration altered with a random factor.
@@ -69,7 +98,7 @@ func Jitter(duration time.Duration, maxFactor ...float64) time.Duration {
 
 	newDuration := time.Duration(0)
 	for newDuration <= 0 {
-		randRange := 2*mRand.Float64() - 1 // [-1.0, 1.0)
+		randRange := 2*Float64() - 1 // [-1.0, 1.0)
 		jitter := time.Duration(randRange * factor * float64(duration))
 		newDuration = duration + jitter
 	}
@@ -103,11 +132,11 @@ func String(n int, alphabet ...string) string {
 		b                     = make([]byte, n)
 	)
 
-	randomInt63 := mRand.Int63()
+	randomInt63 := globalRand.Int63()
 	remaining := alphabetIdxMax
 	for i := 0; i < n; {
 		if remaining == 0 { // generate a new random 63 bits integer, reset remaining
-			randomInt63, remaining = mRand.Int63(), alphabetIdxMax
+			randomInt63, remaining = globalRand.Int63(), alphabetIdxMax
 		}
 		if alphabetIdx := int(randomInt63 & alphabetIdxMask); alphabetIdx < len(a) {
 			b[i] = a[alphabetIdx]

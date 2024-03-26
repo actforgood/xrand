@@ -16,7 +16,7 @@ See go doc reference for more details and examples.
 ### Installation
 
 ```shell
-$ go get -u github.com/actforgood/xrand
+$ go get github.com/actforgood/xrand
 ```
 
 

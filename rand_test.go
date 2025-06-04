@@ -254,10 +254,10 @@ func TestString(t *testing.T) {
 				expectedReg:   regexp.MustCompile(`^[a-z0-9]{32}$`),
 			},
 			{
-				name:          "len = 150, alphabet = xrand.AlphanumAlphabet",
+				name:          "len = 150, alphabet = xrand.ALPHANUMAlphabet",
 				inputLength:   150,
-				inputAlphabet: xrand.AlphanumAlphabet,
-				expectedReg:   regexp.MustCompile(`^[a-z0-9]{150}$`),
+				inputAlphabet: xrand.ALPHAnumAlphabet,
+				expectedReg:   regexp.MustCompile(`^[A-Z0-9]{150}$`),
 			},
 			{
 				name:          "len = 43, alphabet = xrand.DigitsAlphabet",

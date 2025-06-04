@@ -6,10 +6,7 @@
 package xrand
 
 import (
-	cRand "crypto/rand"
-	"encoding/binary"
-	mRand "math/rand"
-	"sync"
+	mRand "math/rand/v2"
 	"time"
 	"unsafe"
 )
@@ -17,73 +14,21 @@ import (
 // defaultJitterFactor is the factor to apply by default on the jitter.
 const defaultJitterFactor = 0.2
 
-// globalRand is a global instance of Rand.
-var globalRand *mRand.Rand
-
-// init initializes math rand with a secure random seed.
-// Is called automatically by go, only once, on this package first import elsewhere.
-func init() {
-	globalRand = mRand.New(&lockedSource{src: mRand.NewSource(getRandSeed())})
-}
-
-// lockedSource allows a random number generator to be used by multiple goroutines
-// concurrently. The code is very similar to math/rand.lockedSource, which is
-// unfortunately not exposed.
-type lockedSource struct {
-	sync.Mutex
-
-	src mRand.Source
-}
-
-// Int63...
-func (ls *lockedSource) Int63() (n int64) {
-	ls.Lock()
-	n = ls.src.Int63()
-	ls.Unlock()
-
-	return
-}
-
-// Seed...
-func (ls *lockedSource) Seed(seed int64) {
-	ls.Lock()
-	ls.src.Seed(seed)
-	ls.Unlock()
-}
-
-// getRandSeed returns a random seed number.
-// Uses crypto/rand for that.
-// Related discussions upon security:
-// 1. https://github.com/golang/go/issues/11871#issuecomment-126350652
-// 2. https://stackoverflow.com/a/35208651
-// 3. https://stackoverflow.com/a/54491783
-func getRandSeed() int64 {
-	var b [8]byte
-	_, err := cRand.Read(b[:])
-	if err == nil {
-		// mask off sign bit to ensure positive number
-		return int64(binary.LittleEndian.Uint64(b[:]) & (1<<63 - 1))
-	}
-
-	// fallback on the common Unix timestamp
-	return time.Now().UnixNano()
-}
-
 // Intn generates a random integer in range [0,n).
 // It panics if max <= 0.
 func Intn(n int) int {
-	return globalRand.Intn(n)
+	return mRand.IntN(n)
 }
 
-// IntnBetween generates a random integer in range [min,max).
-// It panics if max <= 0.
-func IntnBetween(min, max int) int {
-	return globalRand.Intn(max-min) + min
+// IntnBetween generates a random integer in range [a,b).
+// It panics if b <= 0.
+func IntnBetween(a, b int) int {
+	return mRand.IntN(b-a) + a
 }
 
 // Float64 generates a random float64 in range [0.0, 1.0).
 func Float64() float64 {
-	return globalRand.Float64()
+	return mRand.Float64()
 }
 
 // Jitter returns a time.Duration altered with a random factor.
@@ -109,6 +54,8 @@ func Jitter(duration time.Duration, maxFactor ...float64) time.Duration {
 const (
 	// AlphanumAlphabet consists of Ascii lowercase letters, and digits.
 	AlphanumAlphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+	// ALPHANUMAlphabet consists of Ascii uppercase letters, and digits.
+	ALPHANUMAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	// DigitsAlphabet consists of 1..9 numbers.
 	DigitsAlphabet = "0123456789"
 )
@@ -132,11 +79,11 @@ func String(n int, alphabet ...string) string {
 		b                     = make([]byte, n)
 	)
 
-	randomInt63 := globalRand.Int63()
+	randomInt63 := mRand.Int64()
 	remaining := alphabetIdxMax
 	for i := 0; i < n; {
 		if remaining == 0 { // generate a new random 63 bits integer, reset remaining
-			randomInt63, remaining = globalRand.Int63(), alphabetIdxMax
+			randomInt63, remaining = mRand.Int64(), alphabetIdxMax
 		}
 		if alphabetIdx := int(randomInt63 & alphabetIdxMask); alphabetIdx < len(a) {
 			b[i] = a[alphabetIdx]

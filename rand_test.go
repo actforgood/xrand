@@ -24,16 +24,15 @@ func TestIntn(t *testing.T) {
 		tests   = []int{1, 11, 23, 104, 256, 999, 15678}
 	)
 
-	for _, testData := range tests {
-		n := testData // capture range variable
-		t.Run(fmt.Sprintf("[0,%d)", n), func(t *testing.T) {
-			for i := 0; i < 1000; i++ {
+	for _, testN := range tests {
+		t.Run(fmt.Sprintf("[0,%d)", testN), func(t *testing.T) {
+			for range 1000 {
 				// act
-				result = subject(n)
+				result = subject(testN)
 
 				// assert
 				assertTrue(t, result >= 0)
-				assertTrue(t, result < n)
+				assertTrue(t, result < testN)
 			}
 		})
 	}
@@ -49,18 +48,15 @@ func TestIntnBetween(t *testing.T) {
 		tests   = map[int]int{0: 1, 1: 11, 5: 23, 49: 104, 128: 256, 45: 999, 1000: 15678}
 	)
 
-	for idx, testData := range tests {
-		// capture range variable
-		min := idx
-		max := testData
-		t.Run(fmt.Sprintf("[%d,%d)", min, max), func(t *testing.T) {
-			for i := 0; i < 1000; i++ {
+	for a, b := range tests {
+		t.Run(fmt.Sprintf("[%d,%d)", a, b), func(t *testing.T) {
+			for range 1000 {
 				// act
-				result = subject(min, max)
+				result = subject(a, b)
 
 				// assert
-				assertTrue(t, result >= min)
-				assertTrue(t, result < max)
+				assertTrue(t, result >= a)
+				assertTrue(t, result < b)
 			}
 		})
 	}
@@ -75,7 +71,7 @@ func TestFloat64(t *testing.T) {
 		subject = xrand.Float64
 	)
 
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		// act
 		result = subject()
 
@@ -126,11 +122,10 @@ func testJitterWithDefaultMaxFactor(t *testing.T) {
 		}
 	)
 
-	for _, testData := range tests {
-		test := testData // capture range variable
+	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			wasDifferent := false
-			for i := 0; i < 1000; i++ {
+			for range 1000 {
 				// act
 				result = subject(test.inputDuration)
 
@@ -213,11 +208,10 @@ func testJitterWithCustomMaxFactor(t *testing.T) {
 		}
 	)
 
-	for _, testData := range tests {
-		test := testData // capture range variable
+	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			wasDifferent := false
-			for i := 0; i < 1000; i++ {
+			for range 1000 {
 				// act
 				result = subject(test.inputDuration, test.inputMaxFactor)
 
@@ -292,10 +286,9 @@ func TestString(t *testing.T) {
 		}
 	)
 
-	for _, testData := range tests {
-		test := testData // capture range variable
+	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			for i := 0; i < 1000; i++ {
+			for range 1000 {
 				// act
 				result = subject(test.inputLength, test.inputAlphabet)
 
@@ -310,7 +303,7 @@ func BenchmarkString(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = xrand.String(16)
 	}
 }
@@ -319,7 +312,7 @@ func BenchmarkJitter(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		_ = xrand.Jitter(5 * time.Minute)
 	}
 }

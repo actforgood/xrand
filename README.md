@@ -9,7 +9,7 @@
 ---
 
 Package `xrand` contains some randomize utilities like a random string generator, a jitter function for durations.  
-It uses math rand seeded with a crypro rand generated seed.
+It uses math rand seeded with a crypro rand generated seed (prior version `v1.5.0` this was achived internally, starting with `v1.5.0` code relies on standard lib `math/rand/v2`)  
 See go doc reference for more details and examples.
 
 
